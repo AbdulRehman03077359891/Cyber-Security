@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "898800794929",
+    "project_id": "ai-chatbot-8dcde",
+    "storage_bucket": "ai-chatbot-8dcde.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:898800794929:android:3048a0e2df2849221f4410",
+        "android_client_info": {
+          "package_name": "com.example.ai_chatbot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq24Q86PDV7It888v0oX582Nq0BL8QY5M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:898800794929:android:cfdc3d36420c60c11f4410",
+        "android_client_info": {
+          "package_name": "com.example.cyber_security_awareness_aibot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq24Q86PDV7It888v0oX582Nq0BL8QY5M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
