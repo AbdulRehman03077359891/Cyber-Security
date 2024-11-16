@@ -15,6 +15,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cyber_security_awareness_aibot/Screens/Firebase/sign_in.dart';
 import 'package:cyber_security_awareness_aibot/Screens/User/user_screen.dart';
+import 'package:cyber_security_awareness_aibot/Screens/admin/admin_screen.dart';
 import 'package:cyber_security_awareness_aibot/Widgets/notification_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -32,7 +33,6 @@ class FireController extends GetxController {
   final RxList usersListB = <Map<String, dynamic>>[].obs;
   final RxList usersListN = <Map<String, dynamic>>[].obs;
 
-
   // Loading indicator
   setLoading(value) {
     isLoading.value = value;
@@ -40,7 +40,8 @@ class FireController extends GetxController {
   }
 
   // FireBase SignUp userEmail/password
-  Future<UserCredential?> registerUser(userEmail, password, context, userName, userType) async {
+  Future<UserCredential?> registerUser(
+      userEmail, password, context, userName, userType) async {
     try {
       setLoading(true);
 
@@ -65,8 +66,7 @@ class FireController extends GetxController {
     } catch (e) {
       setLoading(false);
       notify("error", "Firebase ${e.toString()}");
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
     return null;
@@ -76,7 +76,9 @@ class FireController extends GetxController {
   Future<void> storeImage(File? image) async {
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
-      Reference storageRef = storage.ref().child("user/${pickedImageFile.value!.path.split('/').last}");
+      Reference storageRef = storage
+          .ref()
+          .child("user/${pickedImageFile.value!.path.split('/').last}");
       UploadTask upLoad = storageRef.putFile(pickedImageFile.value as File);
       TaskSnapshot snapshot = await upLoad.whenComplete(() => ());
       String downloadUrl = await snapshot.ref.getDownloadURL();
@@ -98,7 +100,8 @@ class FireController extends GetxController {
   }
 
   // Storing Data --RealTime DataBase
-  Future<void> realTimeDbase(context, userName, userEmail, password, userType) async {
+  Future<void> realTimeDbase(
+      context, userName, userEmail, password, userType) async {
     try {
       var dBaseInstance = FirebaseDatabase.instance;
       DatabaseReference dBaseRef = dBaseInstance.ref();
@@ -120,14 +123,16 @@ class FireController extends GetxController {
       setLoading(false);
       notify('Success', 'User Registered Successfully');
 
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignInPage()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => SignInPage()));
     } catch (e) {
       notify("error", "Database ${e.toString()}");
     }
   }
 
   // Storing Data --Firestore Database
-  Future<void> fireStoreDBase(context, userName, userEmail, password, userType) async {
+  Future<void> fireStoreDBase(
+      context, userName, userEmail, password, userType) async {
     try {
       var dBaseInstance = FirebaseFirestore.instance;
       CollectionReference dBaseRef = dBaseInstance.collection(userType);
@@ -167,7 +172,8 @@ class FireController extends GetxController {
   }
 
   // User Data when LoginUser
-  Future<UserCredential?> logInUser(String userEmail, String password, context, go) async {
+  Future<UserCredential?> logInUser(
+      String userEmail, String password, context, go) async {
     try {
       setLoading(true);
       final FirebaseAuth auth = FirebaseAuth.instance;
@@ -183,7 +189,8 @@ class FireController extends GetxController {
       if (e.code == 'weak-password') {
         notify('error', 'The password provided is too weak.');
       } else if (e.code == 'userEmail-already-in-use') {
-        notify("error", "The userEmail address is already in use by another user.");
+        notify("error",
+            "The userEmail address is already in use by another user.");
       } else if (e.code == "invalid-credential") {
         notify("error", "invalid-credential: ${e.toString()}");
       }
@@ -202,19 +209,44 @@ class FireController extends GetxController {
         .doc(go == "go" ? user : user.uid)
         .get()
         .then((DocumentSnapshot documentSnapshot) async {
+      if (documentSnapshot.exists) {
         var data = documentSnapshot.data() as Map;
         userData.value = Map<String, dynamic>.from(data);
         setLoading(false);
         setPreference(userData);
 
-        go == "go" ? debugPrint(go) : Get.offAll(UserScreen(
-            userUid: userData["userUid"],
-            userName: userData["userName"],
-            userEmail: userData["userEmail"],
-          ));
-      });
-  }
+        go == "go"
+            ? debugPrint(go)
+            : Get.offAll(UserScreen(
+                userUid: userData["userUid"],
+                userName: userData["userName"],
+                userEmail: userData["userEmail"],
+              ));
+      } else {
+        await FirebaseFirestore.instance
+            .collection("Admin")
+            .doc(go == "go" ? user : user.uid)
+            .get()
+            .then((DocumentSnapshot documentSnapshot) async {
+          if (documentSnapshot.exists) {
+            var data = documentSnapshot.data() as Map;
+            userData.value = Map<String, dynamic>.from(data);
+            setLoading(false);
+            setPreference(userData);
 
+            go == "go" ? debugPrint(go) : Get.offAll( AdminPanelScreen(
+                userName: userData["userName"],
+                userEmail: userData["userEmail"],
+                userUid: userData["userUid"],
+                ));
+          } else {
+            setLoading(false);
+            notify("error", "Document does not exist");
+          }
+        });
+      }
+    });
+  }
 
   // User Data Fetch for User Profile
   Future<void> userProfileData() async {
@@ -237,7 +269,8 @@ class FireController extends GetxController {
   }
 
   // Updating User Data
-  Future<void> updateUserData(imageUrl, userName, userUid, address, gender, contact, dob, userEmail,type) async {
+  Future<void> updateUserData(imageUrl, userName, userUid, address, gender,
+      contact, dob, userEmail, type) async {
     CollectionReference userInst = FirebaseFirestore.instance.collection(type);
     var doc = await userInst.doc(userUid).get();
 
@@ -264,10 +297,13 @@ class FireController extends GetxController {
   }
 
 // Storing Profile Image
-  Future<void> imageStoreStorage(BuildContext context, String userName, String userEmail, String password, String userType) async {
+  Future<void> imageStoreStorage(BuildContext context, String userName,
+      String userEmail, String password, String userType) async {
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
-      Reference storageRef = storage.ref().child("user/${pickedImageFile.value!.path.split('/').last}");
+      Reference storageRef = storage
+          .ref()
+          .child("user/${pickedImageFile.value!.path.split('/').last}");
       UploadTask upLoad = storageRef.putFile(pickedImageFile.value as File);
       TaskSnapshot snapshot = await upLoad.whenComplete(() => ());
       String downloadUrl = await snapshot.ref.getDownloadURL();
@@ -280,13 +316,16 @@ class FireController extends GetxController {
     }
   }
 
-
 // Fetching RealTime Data
   Future<void> realTimeDataFetch(User user) async {
     final ref = FirebaseDatabase.instance.ref();
     await ref.child('NormalUser').child(user.uid).once().then((event) async {
       if (event.snapshot.value == null) {
-        await ref.child('BusinessUser').child(user.uid).once().then((event) async {
+        await ref
+            .child('BusinessUser')
+            .child(user.uid)
+            .once()
+            .then((event) async {
           var data = event.snapshot.value as Map;
           userData.value = Map<String, dynamic>.from(data);
           update();
@@ -298,9 +337,11 @@ class FireController extends GetxController {
       }
     });
   }
+
   // Fetch All Business Users
   Future<void> getAllBusiUsers() async {
-    CollectionReference users = FirebaseFirestore.instance.collection("BusinessUsers");
+    CollectionReference users =
+        FirebaseFirestore.instance.collection("BusinessUsers");
     usersListB.clear();
     await users.get().then((QuerySnapshot snapshot) {
       for (var doc in snapshot.docs) {
@@ -312,7 +353,8 @@ class FireController extends GetxController {
 
   // Fetch All Normal Users
   Future<void> getAllNormUsers() async {
-    CollectionReference users = FirebaseFirestore.instance.collection("NormUsers");
+    CollectionReference users =
+        FirebaseFirestore.instance.collection("NormUsers");
     usersListN.clear();
     await users.get().then((QuerySnapshot snapshot) {
       for (var doc in snapshot.docs) {
@@ -323,12 +365,16 @@ class FireController extends GetxController {
   }
 
   // Update User Address
-  Future<void> updateUserAddress(String address, String userUid, String userName, String userEmail) async {
-    CollectionReference userInst = FirebaseFirestore.instance.collection("NormUsers");
+  Future<void> updateUserAddress(
+      String address, String userUid, String userName, String userEmail) async {
+    CollectionReference userInst =
+        FirebaseFirestore.instance.collection("NormUsers");
     var doc = await userInst.doc(userUid).get();
 
     if (doc.exists) {
-      await userInst.doc(userUid).update({"address": address}).then((value) async {
+      await userInst
+          .doc(userUid)
+          .update({"address": address}).then((value) async {
         update();
         // Uncomment this line if you want to navigate after updating
         // Get.offAll(UserScreen(userUid: userUid, userName: userName, userEmail: userEmail, ));

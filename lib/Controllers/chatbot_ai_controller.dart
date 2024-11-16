@@ -1,3 +1,4 @@
+import 'package:cyber_security_awareness_aibot/Controllers/admin_controller.dart';
 import 'package:cyber_security_awareness_aibot/Resources/bot_knowledge_base.dart';
 import 'package:cyber_security_awareness_aibot/Resources/keywords_forms.dart';
 import 'package:cyber_security_awareness_aibot/Resources/dictionary.dart';
@@ -16,22 +17,22 @@ class AIChatController extends GetxController {
   final RxList<types.Message> messages = <types.Message>[].obs;
   final _user = const types.User(id: 'user-id');
   final _bot = const types.User(id: 'bot-id');
-  var isSpeaking = false.obs;  // Track the speaking state
 
   final Random _random = Random();
   final FlutterTts flutterTts = FlutterTts();
   late final Rx<SpeechToText> speech = SpeechToText().obs;
 
+  var isSpeaking = false.obs;  // Track the speaking state
   var speechEnable = false.obs;
   var isListening = false.obs;
 
-    //////  /////   //////  //////   /////   //  //
-   //       //  //  //      //      //       //  //
-   ///////  /////   ////    ////    //       //////
-        //  //      //      //      //       //  //
-   //////   //      //////  //////   /////   //  //
+    //////  /////   //////   ////   //  //   
+   //       //  //  //      //  //  // //    
+   ///////  /////   ////    //////  ////     
+        //  //      //      //  //  // //    
+   //////   //      //////  //  //  //  //   
    // Speech-to-text instance
-  Future<void> speak(String response) async {
+  Future<void> startSpeaking(String response) async {
     isSpeaking.value = true;  // Set the speaking state to true
     await flutterTts.setLanguage("ur-PK");
     await setFemaleVoice();
@@ -274,6 +275,7 @@ String convertToSingular(String word) {
   void _botReply(String userMessage) {
     // Correct spelling errors in the user message before proceeding
     userMessage = correctSpelling(userMessage);
+    String? someDetectedKeyword;
 
     String response =
         "I'm not sure how to respond to that. Could you rephrase your question?";
@@ -281,6 +283,7 @@ String convertToSingular(String word) {
     // Search through the knowledge base for a keyword match first
     for (var entry in botKnowledgeBase) {
       if (containsForms(userMessage, entry["keyword"])) {
+        someDetectedKeyword = entry["keyword"];
         bool contextFound = false;
 
         // Check for word matches in the nested contexts within the "interrogator" key
@@ -370,7 +373,6 @@ String convertToSingular(String word) {
                           "I'm not sure how to respond to that."
                         ]
                       });
-
               List<String> defaultResponses =
                   List<String>.from(defaultContext["responses"]);
               response =
@@ -392,8 +394,15 @@ String convertToSingular(String word) {
       if (exactPhraseResponse != null) {
         response = exactPhraseResponse;
       }
+      else{
+         // Handle the unanswered question
+    AdminController adminController = AdminController();
+    adminController.handleUnansweredQuestion(userMessage, someDetectedKeyword);
+      }
     }
-    speak(response);
+
+    
+    startSpeaking(response);
     // Prepare the bot's message
     final botMessage = types.TextMessage(
       author: _bot,

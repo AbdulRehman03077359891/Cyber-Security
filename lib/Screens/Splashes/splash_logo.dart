@@ -2,6 +2,7 @@
 
 import 'package:cyber_security_awareness_aibot/Screens/Splashes/splash_screen.dart';
 import 'package:cyber_security_awareness_aibot/Screens/User/user_screen.dart';
+import 'package:cyber_security_awareness_aibot/Screens/admin/admin_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,11 +28,20 @@ class _SplashLogoState extends State<SplashLogo> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var userCheck = prefs.getBool("Login") ?? false;
     if (userCheck) {
+      var userType = prefs.getString("userType");
+      if (userType == "User") {
         Get.offAll(() => UserScreen(
-          userUid: prefs.getString("userUid").toString(),
+              userUid: prefs.getString("userUid").toString(),
               userName: prefs.getString("userName").toString(),
               userEmail: prefs.getString("userEmail").toString(),
             ));
+      } else if (userType == "Admin") {
+        Get.offAll(() => AdminPanelScreen(
+              userUid: prefs.getString("userUid").toString(),
+              userName: prefs.getString("userName").toString(),
+              userEmail: prefs.getString("userEmail").toString(),
+            ));
+      }
     } else {
       Get.offAll(SplashScreen());
     }

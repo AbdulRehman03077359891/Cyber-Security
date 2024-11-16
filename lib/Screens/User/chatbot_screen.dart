@@ -62,7 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Image.asset(
                     "assets/images/AI_background.jpg", // Your image asset path
                     fit: BoxFit
-                        .fitHeight, // Make the image cover the entire background
+                        .cover, // Make the image cover the entire background
                   ),
                 ),
                 Column(

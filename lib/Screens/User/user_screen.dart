@@ -132,6 +132,8 @@ class _UserScreenState extends State<UserScreen> {
         ));
   },
   child: Card(
+    shadowColor: Colors.cyanAccent,
+    elevation: 10,
     margin: const EdgeInsets.all(0),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(50), // Circular card for the button

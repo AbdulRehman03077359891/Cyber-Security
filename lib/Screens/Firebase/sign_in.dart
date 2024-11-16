@@ -247,11 +247,12 @@ class _SignInPageState extends State<SignInPage> {
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Get.to( const SignUpPage(
-                                  userType: 'User',
+                                  userType: 'Admin',
                                 ));
                               })
                       ],
                     )),
+                    const SizedBox(height: 50,)
                   ],
                 ),
               ),

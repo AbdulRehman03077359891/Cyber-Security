@@ -8340,6 +8340,7 @@ Set<String> dictionary = {
 "oh",
 "oil",
 "ok",
+"okay",
 "old",
 "on",
 "onboard",
