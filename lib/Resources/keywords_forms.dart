@@ -40,7 +40,7 @@ final Map<String, List<String>> keywordFormsMap = {
   "Endpoint Security": ["endpoint security", "device security", "endpoint protection", "secure endpoints", "endpoint defense", "endpoint security"],
   "Security Token": ["security token", "authentication token", "digital token", "tokenized security", "two-factor authentication token", "security", "token"],
   "Provider": ["provider", "flutter provider", "state management", "change notifier", "consumer widget", "provider"],
-  "Hello": ["hello", "hi", "yo", "assalam", "assalam o alaikum", "salam", "hey"],
+  "Hello": ["hello", "hi", "yo", "assalam", "assalam o alaikum", "salam", "hey", "assalamoalaikum"],
   "You": ["you",],
   "Your": ["yours", "your"],
 };

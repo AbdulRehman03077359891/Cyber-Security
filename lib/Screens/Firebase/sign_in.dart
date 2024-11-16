@@ -246,7 +246,7 @@ class _SignInPageState extends State<SignInPage> {
                                 fontWeight: FontWeight.w500),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                Get.to( SignUpPage(
+                                Get.to( const SignUpPage(
                                   userType: 'User',
                                 ));
                               })

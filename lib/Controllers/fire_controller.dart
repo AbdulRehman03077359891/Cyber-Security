@@ -14,7 +14,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cyber_security_awareness_aibot/Screens/Firebase/sign_in.dart';
-import 'package:cyber_security_awareness_aibot/Screens/User/chatbot_screen.dart';
+import 'package:cyber_security_awareness_aibot/Screens/User/user_screen.dart';
 import 'package:cyber_security_awareness_aibot/Widgets/notification_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -207,7 +207,7 @@ class FireController extends GetxController {
         setLoading(false);
         setPreference(userData);
 
-        go == "go" ? debugPrint(go) : Get.offAll(ChatScreen(
+        go == "go" ? debugPrint(go) : Get.offAll(UserScreen(
             userUid: userData["userUid"],
             userName: userData["userName"],
             userEmail: userData["userEmail"],

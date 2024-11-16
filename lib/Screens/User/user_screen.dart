@@ -48,8 +48,8 @@ class _UserScreenState extends State<UserScreen> {
         child: GridView.custom(
   gridDelegate: SliverQuiltedGridDelegate(
     crossAxisCount: 3,
-    mainAxisSpacing: 4,
-    crossAxisSpacing: 5,
+    mainAxisSpacing: 10,
+    crossAxisSpacing: 10,
     repeatPattern: QuiltedGridRepeatPattern.mirrored,
 
     pattern: [
@@ -66,6 +66,8 @@ class _UserScreenState extends State<UserScreen> {
                 onTap: cardDetail.navigate,
                 
                 child: Card(
+                  elevation: 2,
+                  shadowColor: Colors.blueGrey,                              
                   margin: const EdgeInsets.all(0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10), // Circular card for the button
@@ -75,11 +77,22 @@ class _UserScreenState extends State<UserScreen> {
                     children: [
                       // Display the image
                       Positioned(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            cardDetail.imagePath,
-                            fit: BoxFit.fitHeight,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 5,right: 5,bottom: 20),
+                            child: Card(
+                              elevation: 5,
+                              shadowColor: const Color.fromARGB(199, 184, 178, 178),
+                              shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.asset(
+                                  scale: 1.8,
+                                  cardDetail.imagePath,
+                                  fit: BoxFit.fitHeight,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),

@@ -120,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             const Spacer(flex: 3),
                             ElevatedButton(
                               onPressed: () {
-                                Get.off(SignInPage());
+                                Get.off(const SignInPage());
                               },
                               style: ElevatedButton.styleFrom(
                                 elevation: 0,

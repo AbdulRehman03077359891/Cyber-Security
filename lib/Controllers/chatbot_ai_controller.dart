@@ -1,10 +1,14 @@
 import 'package:cyber_security_awareness_aibot/Resources/bot_knowledge_base.dart';
 import 'package:cyber_security_awareness_aibot/Resources/keywords_forms.dart';
 import 'package:cyber_security_awareness_aibot/Resources/dictionary.dart';
+import 'package:cyber_security_awareness_aibot/Resources/pronounciation_map.dart';
 import 'package:cyber_security_awareness_aibot/Resources/singular_plural_map.dart';
 import 'package:cyber_security_awareness_aibot/Resources/synonym_map.dart';
+import 'package:cyber_security_awareness_aibot/Widgets/notification_message.dart';
 import 'package:get/get.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:math'; // To use Random for selecting responses
 
@@ -12,8 +16,76 @@ class AIChatController extends GetxController {
   final RxList<types.Message> messages = <types.Message>[].obs;
   final _user = const types.User(id: 'user-id');
   final _bot = const types.User(id: 'bot-id');
+  var isSpeaking = false.obs;  // Track the speaking state
 
   final Random _random = Random();
+  final FlutterTts flutterTts = FlutterTts();
+  late final Rx<SpeechToText> speech = SpeechToText().obs;
+
+  var speechEnable = false.obs;
+  var isListening = false.obs;
+
+    //////  /////   //////  //////   /////   //  //
+   //       //  //  //      //      //       //  //
+   ///////  /////   ////    ////    //       //////
+        //  //      //      //      //       //  //
+   //////   //      //////  //////   /////   //  //
+   // Speech-to-text instance
+  Future<void> speak(String response) async {
+    isSpeaking.value = true;  // Set the speaking state to true
+    await flutterTts.setLanguage("ur-PK");
+    await setFemaleVoice();
+    await flutterTts.setPitch(1);
+    await flutterTts.setSpeechRate(0.45);  // You can adjust the rate
+    await flutterTts.setVolume(1);// Example: modify the response to adjust the pronunciation of AbdulRehman
+  pronunciationMap.forEach((word, pronunciation) {
+    response = response.replaceAll(word, pronunciation); // Replace words in the response dynamically based on the pronunciation map
+  });
+
+  await flutterTts.speak(response);
+  isSpeaking.value = false;
+  }
+  Future<void> stopSpeaking() async {
+    isSpeaking.value = false;  // Set the speaking state to true
+    await flutterTts.stop();
+  }
+  Future<void> setFemaleVoice() async {
+  List<dynamic> voices = await flutterTts.getVoices;
+  for (var voice in voices) {
+    if (voice.toString().contains("female") || voice.toString().contains("feminine")) {
+      await flutterTts.setVoice(voice);
+      break;
+    }
+  }
+}
+
+   //     ////  /////  ////// ////// ///   //
+   //      //  //        //   //     ////  //
+   //      //   /////    //   ////   // // //
+   //      //      //    //   //     //  ////
+   /////  //// /////     //   ////// //   ///
+   // Text-to-speech
+  Future<void> initSpeech() async {
+    speechEnable.value = await speech.value.initialize();
+    // isListening.value = true;
+  }
+  void startListening(Function(String) onSpeechResult) async {
+            isListening.value = true;
+            speechEnable.value?
+    await speech.value.listen(onResult: (result) {
+      if(speechEnable.value) {
+        onSpeechResult(result.recognizedWords);
+        isListening.value=false;
+      }
+      else{
+        isListening.value = false;
+      }
+      }):notify("error", "Please provide permission");
+  }
+  void stopListening() async {
+    await speech.value.stop();
+    isListening.value = false;
+  }
 
      
       ///////   //////    ///////     //      //
@@ -98,11 +170,11 @@ class AIChatController extends GetxController {
   }
 
 
-    /////  //   //  ///   //   ////   ///   //  //   // ///   //
-   //       // //   ////  //  //  //  ////  //   // //  ////  //
-    /////    ///    // // //  //  //  // // //    ///   // // //
-        //   //     //  ////  //  //  //  ////    //    //  ////
-    /////   //      //   ///   ////   //   ///   //     //   ///
+    /////  //   //  ///   //   ////   ///   //  //   // ///    ///
+   //       // //   ////  //  //  //  ////  //   // //  ////  ////
+    /////    ///    // // //  //  //  // // //    ///   // //// //
+        //   //     //  ////  //  //  //  ////    //    //  //  //
+    /////   //      //   ///   ////   //   ///   //     //      //
 // Function to check for keyword match, including synonyms
   bool containsSynonym(String userMessage, String word) {
     // Convert user message to lowercase for case-insensitive comparison
@@ -321,7 +393,7 @@ String convertToSingular(String word) {
         response = exactPhraseResponse;
       }
     }
-
+    speak(response);
     // Prepare the bot's message
     final botMessage = types.TextMessage(
       author: _bot,
@@ -333,6 +405,7 @@ String convertToSingular(String word) {
     // Add the bot's message after a short delay for a natural feel
     Future.delayed(const Duration(milliseconds: 500), () {
       messages.insert(0, botMessage);
+      // stopSpeaking();
     });
   }
 
@@ -438,4 +511,7 @@ String convertToSingular(String word) {
       ]
     }
   ];
+
 }
+
+
