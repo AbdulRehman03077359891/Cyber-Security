@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cyber_security_awareness_aibot/Controllers/admin_controller.dart';
 import 'package:cyber_security_awareness_aibot/Resources/bot_knowledge_base.dart';
 import 'package:cyber_security_awareness_aibot/Resources/keywords_forms.dart';
@@ -25,6 +28,58 @@ class AIChatController extends GetxController {
   var isSpeaking = false.obs;  // Track the speaking state
   var speechEnable = false.obs;
   var isListening = false.obs;
+
+  Timer? _inactivityTimer; // Timer for inactivity detection
+  bool _isUserActive = true; // Track if the user is active
+  late bool _isAnswering = false;
+  String? timestamp;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  
+  // Function to start inactivity timer
+  void startInactivityTimer() {
+    if (_inactivityTimer != null && _inactivityTimer!.isActive) {
+      _inactivityTimer!.cancel(); // Cancel any existing timer
+    }
+
+    // Start a new timer that triggers after 15 seconds of inactivity
+    _inactivityTimer = Timer(const Duration(seconds: 15), () {
+      if (!_isUserActive) {
+        _askRandomUnansweredQuestion(); // Ask unanswered questions if user is inactive
+      }
+    });
+  }
+  
+   // Function to reset the activity state whenever the user interacts
+  void onUserActivity() {
+    _isUserActive = true; // User is active
+    startInactivityTimer(); // Reset the inactivity timer
+  }
+
+  // Function to handle user inactivity (no interaction within 15 seconds)
+  void onUserInactive() {
+    _isUserActive = false; // User is inactive
+    startInactivityTimer(); // Restart the inactivity timer
+  }
+  
+  
+// Function to ask a random unanswered question
+void _askRandomUnansweredQuestion() async {
+  final AdminController adminController = Get.put(AdminController());
+  Map<String, dynamic>? randomQuestion = await adminController.fetchRandomUnansweredQuestions();
+
+  if (randomQuestion == null) {
+    _botReply("I have no new questions for you right now.",false);
+    return;
+  }
+
+  String questionText = randomQuestion['question'];
+  timestamp = randomQuestion['timestamp'];
+
+  // Ask the random question to the user
+  _botReply(questionText, true);
+
+}
+
 
     //////  /////   //////   ////   //  //   
    //       //  //  //      //  //  // //    
@@ -253,7 +308,7 @@ String convertToSingular(String word) {
 //      // /////  /////   /////  //  //   /////  /////
 
 // Function to handle sending a message
-  void sendMessage(String userMessage) {
+  Future<void> sendMessage(String userMessage,) async {
     final textMessage = types.TextMessage(
       author: _user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -262,7 +317,39 @@ String convertToSingular(String word) {
     );
 
     messages.insert(0, textMessage);
-    _botReply(userMessage);
+    
+    
+    if(_isAnswering){
+      AdminController adminController = Get.put(AdminController()); 
+      // Wait for user to respond (this depends on your UI interaction)
+      String userResponse = userMessage; // Await user's response
+      // Save the answer to Firebase
+      await adminController.saveAnswerToFirebase(timestamp,userResponse);
+    }else{
+      // Reset inactivity timer when the user sends a message
+      onUserActivity();
+      _botBrain(userMessage);
+    }
+  }
+
+  Future<void> _botReply(String response, bool isQuestioning) async {
+    startSpeaking(response);
+    final botMessage = types.TextMessage(
+      author: _bot,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: const Uuid().v4(),
+      text: response,
+    );
+    if(isQuestioning){
+      _isAnswering = true;
+    }else{
+      _isAnswering = false;
+    }
+    // Add the bot's message after a short delay for a natural feel
+    Future.delayed(const Duration(milliseconds: 500), () {
+      messages.insert(0, botMessage);
+      // stopSpeaking();
+    });
   }
 
 /////  /////   ////  //// ///   //
@@ -272,7 +359,7 @@ String convertToSingular(String word) {
 /////  //  // //  // //// //   ///
 
 // Function to generate a response from the bot based on user input
-  void _botReply(String userMessage) {
+  void _botBrain(String userMessage) {
     // Correct spelling errors in the user message before proceeding
     userMessage = correctSpelling(userMessage);
     String? someDetectedKeyword;
@@ -402,20 +489,8 @@ String convertToSingular(String word) {
     }
 
     
-    startSpeaking(response);
     // Prepare the bot's message
-    final botMessage = types.TextMessage(
-      author: _bot,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: const Uuid().v4(),
-      text: response,
-    );
-
-    // Add the bot's message after a short delay for a natural feel
-    Future.delayed(const Duration(milliseconds: 500), () {
-      messages.insert(0, botMessage);
-      // stopSpeaking();
-    });
+    _botReply(response, false);
   }
 
 // Function to check for exact phrase matches
@@ -520,6 +595,8 @@ String convertToSingular(String word) {
       ]
     }
   ];
+
+
 
 }
 

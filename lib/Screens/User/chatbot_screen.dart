@@ -29,6 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     chatController.initSpeech();
+    chatController.onUserInactive();
   }
 
   @override

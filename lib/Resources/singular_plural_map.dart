@@ -4,8 +4,10 @@ Map<String, List<String>> singularPluralMap = {
   // verbs
   "is": ["are"],
   "was": ["were"],
+  "use" : ["uses"],
 
   // Words with Singular and Plural Forms
+  "detect": ["delects"],
   "malware": ["malware"], // no plural form
   "phishing": ["phishings"],
   "ransomware": ["ransomware"], // no plural form

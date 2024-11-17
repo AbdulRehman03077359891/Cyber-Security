@@ -57,6 +57,8 @@ class AdminPanelScreen extends StatelessWidget {
                 'assets/cybersecurity.json', // Download or link a cybersecurity-themed Lottie animation
                 fit: BoxFit.fitWidth,
                 alignment: Alignment.center,
+                reverse: true,
+                repeat: true,
               ),
             ),
             TabBarView(

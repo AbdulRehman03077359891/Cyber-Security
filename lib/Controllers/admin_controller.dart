@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -72,5 +74,93 @@ Stream<QuerySnapshot> getUnknownQuestions() {
   // Fetch all unknown questions from the UnknownQuestions collection
   return firestore.collection('UnknownQuestions').snapshots();
 }
+
+Future<Map<String, dynamic>?> fetchRandomUnansweredQuestions() async {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  Random random = Random();
+
+
+  List<Map<String, dynamic>> unansweredQuestions = [];
+
+  // Fetch all documents from the 'Database' collection
+  QuerySnapshot snapshot = await firestore.collection('Database').get();
+
+  for (var doc in snapshot.docs) {
+    // Get the unanswered questions and add them to the list
+    List<Map<String, dynamic>> questions = List<Map<String, dynamic>>.from(doc['unanswered_questions']);
+    unansweredQuestions.addAll(questions);  // Add the questions from all keywords to a single list
+  }
+  // If no unanswered questions, return null
+  if (unansweredQuestions.isEmpty) {
+    return null;
+  }
+
+  // Return a random unanswered question
+  return unansweredQuestions[random.nextInt(unansweredQuestions.length)];
+
+}
+
+// Function to save the answer to Firebase
+Future<void> saveAnswerToFirebase(String? timestamp, String answer) async {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  // Locate the unanswered question using the timestamp and update it with the user's response
+  await firestore.collection('Database').get().then((snapshot) {
+    for (var doc in snapshot.docs) {
+      List questions = List.from(doc['unanswered_questions']);
+      var questionToUpdate = questions.firstWhere(
+        (question) => question['timestamp'] == timestamp,
+        orElse: () => null,
+      );
+
+      if (questionToUpdate != null) {
+        // Remove the unanswered question
+        firestore.collection('Database').doc(doc.id).update({
+          'unanswered_questions': FieldValue.arrayRemove([questionToUpdate]),
+        });
+        // Check if the question already has a 'history' array
+          List<dynamic> answers = questionToUpdate['answers'] ?? [];
+
+          // Add the new answer to the history
+          answers.add(answer);
+
+        // Add the question with the user's response
+        firestore.collection('Database').doc(doc.id).update({
+          'unanswered_questions': FieldValue.arrayUnion([
+            {
+              'question': questionToUpdate['question'],
+              'timestamp': questionToUpdate['timestamp'],
+              'answers': answers,
+            }
+          ]),
+        });
+      }
+    }
+  });
+}
+
+
+// // Fetch all keywords and their unanswered questions
+// Future<Map<String, List<Map<String, dynamic>>>> fetchUnansweredQuestions() async {
+//   FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+//   // Create an empty map to store questions for each keyword
+//   Map<String, List<Map<String, dynamic>>> unansweredQuestions = {};
+
+//   // Fetch all documents from the 'Database' collection (each document represents a keyword)
+//   QuerySnapshot snapshot = await firestore.collection('Database').get();
+
+//   for (var doc in snapshot.docs) {
+//     // Get the keyword (document id) and unanswered questions from each document
+//     String keyword = doc.id;
+//     List<Map<String, dynamic>> questions = List<Map<String, dynamic>>.from(doc['unanswered_questions']);
+
+//     // Add the questions to the map
+//     unansweredQuestions[keyword] = questions;
+//   }
+
+//   return unansweredQuestions;
+// }
+
 
 }
