@@ -30,7 +30,7 @@ class AIChatController extends GetxController {
   var isListening = false.obs;
 
   Timer? _inactivityTimer; // Timer for inactivity detection
-  bool _isUserActive = true; // Track if the user is active
+  // bool _isUserActive = true; // Track if the user is active
   late bool _isAnswering = false;
   String? timestamp;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -42,22 +42,22 @@ class AIChatController extends GetxController {
     }
 
     // Start a new timer that triggers after 15 seconds of inactivity
-    _inactivityTimer = Timer(const Duration(seconds: 15), () {
-      if (!_isUserActive) {
+    _inactivityTimer = Timer(const Duration(seconds: 40), () {
+      // if (!_isUserActive) {
         _askRandomUnansweredQuestion(); // Ask unanswered questions if user is inactive
-      }
+      // }
     });
   }
   
    // Function to reset the activity state whenever the user interacts
   void onUserActivity() {
-    _isUserActive = true; // User is active
+    // _isUserActive = true; // User is active
     startInactivityTimer(); // Reset the inactivity timer
   }
 
   // Function to handle user inactivity (no interaction within 15 seconds)
   void onUserInactive() {
-    _isUserActive = false; // User is inactive
+    // _isUserActive = false; // User is inactive
     startInactivityTimer(); // Restart the inactivity timer
   }
   
@@ -325,6 +325,8 @@ String convertToSingular(String word) {
       String userResponse = userMessage; // Await user's response
       // Save the answer to Firebase
       await adminController.saveAnswerToFirebase(timestamp,userResponse);
+      _isAnswering = false;
+      onUserInactive();
     }else{
       // Reset inactivity timer when the user sends a message
       onUserActivity();
