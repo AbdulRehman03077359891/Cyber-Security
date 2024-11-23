@@ -185,13 +185,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.5"
-  eve_de_muslim:
+  eve_de_muslim_lite:
     dependency: "direct main"
     description:
       path: "."
       ref: master
-      resolved-ref: "68e421b124170a6f7250b3a0139a0912e9f965c8"
-      url: "https://github.com/AbdulRehman03077359891/Eve-de-Muslim.git"
+      resolved-ref: a71f170f5619439f1153bd8b47b5d062722e04bb
+      url: "https://github.com/AbdulRehman03077359891/Eve-de-Muslim-Lite.git"
     source: git
     version: "1.0.0"
   fake_async:

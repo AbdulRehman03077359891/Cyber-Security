@@ -124,7 +124,7 @@ class FireController extends GetxController {
       notify('Success', 'User Registered Successfully');
 
       Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => SignInPage()));
+          .push(MaterialPageRoute(builder: (context) => const SignInPage()));
     } catch (e) {
       notify("error", "Database ${e.toString()}");
     }
@@ -149,7 +149,7 @@ class FireController extends GetxController {
       notify('Success', 'User Registered Successfully');
       setLoading(false);
 
-      Get.off(SignInPage());
+      Get.off(const SignInPage());
     } catch (e) {
       notify("error", "Database ${e.toString()}");
     }
@@ -168,7 +168,7 @@ class FireController extends GetxController {
   Future<void> logOut() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
-    Get.offAll(SignInPage());
+    Get.offAll(const SignInPage());
   }
 
   // User Data when LoginUser

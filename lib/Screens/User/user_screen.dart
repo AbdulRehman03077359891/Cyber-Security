@@ -1,5 +1,5 @@
-import 'package:cyber_security_awareness_aibot/Screens/User/chatbot_screen.dart';
 import 'package:cyber_security_awareness_aibot/Widgets/card_details.dart';
+import 'package:eve_de_muslim_lite/Screens/chatbot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -35,7 +35,7 @@ class _UserScreenState extends State<UserScreen> {
           children: [
             Image.asset('assets/images/Logo2.png',scale: 13,),
             const Text(
-              'Cyber Security Info',
+              'Cyber Security AI Chatbot',
               style: TextStyle(fontWeight: FontWeight.w500,
                   shadows: [BoxShadow(blurRadius: 10, spreadRadius: 20)]),
             ),

@@ -1,6 +1,6 @@
-import 'package:cyber_security_awareness_aibot/Screens/User/chatbot_screen.dart';
 import 'package:cyber_security_awareness_aibot/Screens/admin/keyword_questions_tab.dart';
 import 'package:cyber_security_awareness_aibot/Screens/admin/unknown_questions_tab.dart';
+import 'package:eve_de_muslim_lite/Screens/chatbot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';

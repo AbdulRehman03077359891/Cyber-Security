@@ -31,9 +31,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  eve_de_muslim:
+  eve_de_muslim_lite:
     git:
-      url: https://github.com/AbdulRehman03077359891/Eve-de-Muslim.git
+      url: https://github.com/AbdulRehman03077359891/Eve-de-Muslim-Lite.git
       ref: master
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -1,6 +1,6 @@
 // Define a model class for Card details
-import 'package:cyber_security_awareness_aibot/Resources/bot_knowledge_base.dart';
 import 'package:cyber_security_awareness_aibot/Screens/User/detail_screen.dart';
+import 'package:eve_de_muslim_lite/Resources/bot_knowledge_base.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
